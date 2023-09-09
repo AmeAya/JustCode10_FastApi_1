@@ -158,11 +158,34 @@ def getToken():
 
 # Метод для создания нового жанра
 @app.post('/genre')
-def createGenre():
-    pass
+def createGenre(data=Body()):
+    if 'title' not in data.keys():
+        return JSONResponse({'msg': 'Title is required!'}, status_code=400)
+    else:
+        connect = sqlite3.connect('database.db')
+        cursor = connect.cursor()
+        query = 'SELECT id FROM genres ORDER BY id DESC LIMIT 1'
+        cursor.execute(query)
+        genre_id = str(cursor.fetchone()[0])
+        query = "INSERT INTO genres(id, title) VALUES(" + genre_id + ", '" + data['title'] + "'"
+        cursor.execute(query)
+        connect.commit()
+        cursor.close()
+        connect.close()
+        return JSONResponse({'msg': 'Genre is created!'}, status_code=200)
 
 
 # Метод для удаления нового жанра
 @app.delete('/genre')
-def deleteGenre():
-    pass
+def deleteGenre(data=Body()):
+    if 'id' not in data.keys():
+        return JSONResponse({'msg': 'id is required!'}, status_code=400)
+    else:
+        connect = sqlite3.connect('database.db')
+        cursor = connect.cursor()
+        query = 'DELETE FROM genres WHERE id=' + str(data['id'])
+        cursor.execute(query)
+        connect.commit()
+        cursor.close()
+        connect.close()
+        return JSONResponse({'msg': 'genre is deleted!'}, status_code=200)
